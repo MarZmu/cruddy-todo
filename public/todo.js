@@ -7,6 +7,7 @@ window.Todo = {
 
   // Create (Crud) -- collection
   create: function(text, callback) {
+    debugger;
     return $.ajax({
       url: this.url,
       type: 'POST',

@@ -11,9 +11,12 @@ var counter = 0;
 // Wikipedia entry on Leading Zeros and check out some of code links:
 // https://www.google.com/search?q=what+is+a+zero+padded+number%3F
 
+//creates a 5 digit string by padding with zeros
 const zeroPaddedNumber = (num) => {
   return sprintf('%05d', num);
 };
+
+
 
 const readCounter = (callback) => {
   fs.readFile(exports.counterFile, (err, fileData) => {
@@ -25,6 +28,10 @@ const readCounter = (callback) => {
   });
 };
 
+
+//I - takes in a number and a function
+//O - performs a callback on a zero-padded number or logs an error
+//Purpose - Attempts to write to  a file (counterfile)
 const writeCounter = (count, callback) => {
   var counterString = zeroPaddedNumber(count);
   fs.writeFile(exports.counterFile, counterString, (err) => {
@@ -38,8 +45,24 @@ const writeCounter = (count, callback) => {
 
 // Public API - Fix this function //////////////////////////////////////////////
 
-exports.getNextUniqueId = () => {
+/****NEED TO REFACTOR SO THAT THE CURRENT STATE OF THE COUNTER IS SAVED
+TO THE HARD DRIVE (MAKE USE OF READ AND WRITE COUNTER FUNCTIONS)
+AND THEN COMMIT*/
+//returns the next number (zero padded)
+//used where?
+exports.getNextUniqueId = (callback) => {
+  //read counter file (counterTest.txt?) to know where counter is at currently
+  //increment current value of counter
+  readCounter((err, count) => {
+    count++;
+    writeCounter(count, (err, id) => {
+      callback(err, id);
+    });
+  });
+
+
   counter = counter + 1;
+  //write the counter value to that file (callback can be to read to verify)
   return zeroPaddedNumber(counter);
 };
 

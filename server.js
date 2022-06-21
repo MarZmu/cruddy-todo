@@ -18,7 +18,9 @@ app.use(express.static(path.join(__dirname, './public')));
 // RESTful Routes for CRUD operations //////////////////////////////////////////
 
 // Create (Crud) -- collection route
+//Request enters here, is then sent to index
 app.post('/todo', (req, res) => {
+  console.log('server.js - post: ', req);
   Todo.create(req.body.todoText, (err, newTodo) => {
     if (err) {
       res.sendStatus(400);
