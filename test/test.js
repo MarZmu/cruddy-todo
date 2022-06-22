@@ -68,6 +68,7 @@ describe('todos', () => {
 
   describe('create', () => {
     it('should create a new file for each todo', (done) => {
+      debugger;
       todos.create('todo1', (err, data) => {
         const todoCount = fs.readdirSync(todos.dataDir).length;
         expect(todoCount).to.equal(1);

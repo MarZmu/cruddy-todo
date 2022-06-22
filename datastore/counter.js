@@ -53,17 +53,17 @@ AND THEN COMMIT*/
 exports.getNextUniqueId = (callback) => {
   //read counter file (counterTest.txt?) to know where counter is at currently
   //increment current value of counter
+  //use read to find the value of counter
+  //pass the counter to the create function
+  //increment the counter and write it to the file
   readCounter((err, count) => {
     count++;
     writeCounter(count, (err, id) => {
+      // console.log('error');
       callback(err, id);
     });
   });
-
-
-  counter = counter + 1;
   //write the counter value to that file (callback can be to read to verify)
-  return zeroPaddedNumber(counter);
 };
 
 

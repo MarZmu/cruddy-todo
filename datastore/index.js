@@ -4,7 +4,7 @@ const _ = require('underscore');
 const counter = require('./counter');
 
 var items = {};
-
+var memoryFile = path.join(__dirname, 'counter.txt');
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 //I-string and function
 //O - stores the string at the next zero padded number key
@@ -17,23 +17,60 @@ WITH EACH POST, SAVE A FILE WITH THE TODO ITEM  IN THIS FOLDER
 
 ONLY SAVE THE TODO TEXT, THE ID IS ENCODED IN THE FILE NAME (DONT STORE AN OBJECT)*/
 exports.create = (text, callback) => {
-  console.log(`index.js - create - ${text}`);
-  var id = counter.getNextUniqueId();
-  items[id] = text;
-  callback(null, { id, text });
+  counter.getNextUniqueId((err, id) => {
+    fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log('file written sucessfully.');
+        callback(null, { id, text });
+      }
+    });
+  } );
+
+  // items[id] = text;
 };
 
 //returns objects with the key and value
 //performs callback on them
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
-  });
-  callback(null, data);
+  console.log('INDEX.JS --- exports.readAll');
+  //read the counter.txt file to get the current number of datadir files
+  fs.readdir(exports.dataDir, (err, files) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('files: ', files);/*  ['0001', '0002', '0003.txt'],*/
+      var fileList = _.map(files, (file) => {
+        file = file.slice(0, 5);
+        //read file  @ [0001.txt]
+        return {"id": file, "text": file };
+        // fs.readFile(path.join(exports.dataDir, `/${file}`), (err, data) => {
+        //   return {id: file, text: data.toString()};
+        // });
+      });
+      console.log('filelist: ', fileList);
+      callback(null, fileList);
+    }
+  }
+  );
+
+  //fs.readFile(exports.counterFile, (err, data) => {
+
+  //create a loop that iterates from zero to counter number
+
+  ////use the zero padded function to create each id# (file name)
+
+  ////read each file, making an object out of each one
+
+  //return the array of objects
 };
 
 //attempts to identify a specific key value pair in the items object
 exports.readOne = (id, callback) => {
+  console.log('INDEX.JS --- exports.readone');
+  // call readFile using the id argument to specify the file name
+
   var text = items[id];
   if (!text) {
     callback(new Error(`No item with id: ${id}`));
@@ -43,6 +80,7 @@ exports.readOne = (id, callback) => {
 };
 
 exports.update = (id, text, callback) => {
+  console.log('INDEX.JS -- exports.update');
   var item = items[id];
   if (!item) {
     callback(new Error(`No item with id: ${id}`));
@@ -53,6 +91,7 @@ exports.update = (id, text, callback) => {
 };
 
 exports.delete = (id, callback) => {
+  console.log('INDEX.JS -- exports.delete');
   var item = items[id];
   delete items[id];
   if (!item) {
