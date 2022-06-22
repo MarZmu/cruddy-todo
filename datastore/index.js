@@ -26,7 +26,7 @@ exports.create = (text, callback) => {
         callback(null, { id, text });
       }
     });
-  } );
+  });
 
   // items[id] = text;
 };
@@ -44,7 +44,7 @@ exports.readAll = (callback) => {
       var fileList = _.map(files, (file) => {
         file = file.slice(0, 5);
         //read file  @ [0001.txt]
-        return {"id": file, "text": file };
+        return { "id": file, "text": file };
         // fs.readFile(path.join(exports.dataDir, `/${file}`), (err, data) => {
         //   return {id: file, text: data.toString()};
         // });
@@ -70,14 +70,19 @@ exports.readAll = (callback) => {
 exports.readOne = (id, callback) => {
   console.log('INDEX.JS --- exports.readone');
   // call readFile using the id argument to specify the file name
-
-  var text = items[id];
-  if (!text) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback(null, { id, text });
-  }
+  fs.readFile(path.join(exports.dataDir, `${id}.txt`), (err, message) => {
+    if (err) {
+      callback(err);
+    } else {
+      var text = { "id": id, "text": message.toString() };
+      callback(null, text);
+    }
+  });
 };
+
+//readfile (create path using id)
+//create object and send to callback
+//error message if erorr
 
 exports.update = (id, text, callback) => {
   console.log('INDEX.JS -- exports.update');
