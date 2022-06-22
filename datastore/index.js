@@ -86,25 +86,37 @@ exports.readOne = (id, callback) => {
 
 exports.update = (id, text, callback) => {
   console.log('INDEX.JS -- exports.update');
-  var item = items[id];
-  if (!item) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    items[id] = text;
-    callback(null, { id, text });
-  }
+  //readfile to see if it exists
+  //writefile to replace it with new text
+
+  fs.readFile(path.join(exports.dataDir, `${id}.txt`), (err) => {
+    if (err) {
+      callback(err);
+    } else {
+      fs.writeFile(path.join(exports.dataDir, `${id}.txt`), text, (err) => {
+        if (err) {
+          callback(err);
+        } else {
+          var updatedtodo = { 'id': id, 'text': text };
+          callback(null, updatedtodo);
+        }
+      });
+    }
+  });
 };
+
 
 exports.delete = (id, callback) => {
   console.log('INDEX.JS -- exports.delete');
-  var item = items[id];
-  delete items[id];
-  if (!item) {
-    // report an error if item not found
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    callback();
-  }
+  //fs.unlink the directory
+  fs.unlink(path.join(exports.dataDir, `${id}.txt`), (err) => {
+    if (err) {
+      callback(err);
+    } else {
+      console.log('was deleted');
+      callback();
+    }
+  });
 };
 
 // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////

@@ -18,6 +18,7 @@ app.use(express.static(path.join(__dirname, './public')));
 
 // Create (Crud) -- collection route
 app.post('/todo', (req, res) => {
+  debugger;
   Todo.create(req.body.todoText, (err, newTodo) => {
     if (err) {
       res.sendStatus(400);
