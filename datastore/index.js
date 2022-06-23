@@ -2,9 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
+const Promise = require('bluebird');
 
 var items = {};
 var memoryFile = path.join(__dirname, 'counter.txt');
+var readFilePromise = Promise.promisify(fs.readFile);
 // Public API - Fix these CRUD functions ///////////////////////////////////////
 //I-string and function
 //O - stores the string at the next zero padded number key
@@ -33,38 +35,29 @@ exports.create = (text, callback) => {
 
 //returns objects with the key and value
 //performs callback on them
+
 exports.readAll = (callback) => {
-  console.log('INDEX.JS --- exports.readAll');
-  //read the counter.txt file to get the current number of datadir files
+  debugger;
   fs.readdir(exports.dataDir, (err, files) => {
     if (err) {
-      console.log(err);
-    } else {
-      console.log('files: ', files);/*  ['0001', '0002', '0003.txt'],*/
-      var fileList = _.map(files, (file) => {
-        file = file.slice(0, 5);
-        //read file  @ [0001.txt]
-        return { "id": file, "text": file };
-        // fs.readFile(path.join(exports.dataDir, `/${file}`), (err, data) => {
-        //   return {id: file, text: data.toString()};
-        // });
-      });
-      console.log('filelist: ', fileList);
-      callback(null, fileList);
+      console.log('here');
+      return callback(err);
     }
-  }
-  );
-
-  //fs.readFile(exports.counterFile, (err, data) => {
-
-  //create a loop that iterates from zero to counter number
-
-  ////use the zero padded function to create each id# (file name)
-
-  ////read each file, making an object out of each one
-
-  //return the array of objects
+    var data = _.map(files, (file) => {
+      var id = path.basename(file, '.txt');
+      console.log(file);
+      return readFilePromise(path.join(exports.dataDir, file)).then((fileData) => {
+        return {id: id, text: fileData.toString()};
+      });
+    });
+    //waiting for all promises to be created
+    Promise.all(data)
+      .then((items) => {
+        callback(null, items);
+      });
+  });
 };
+
 
 //attempts to identify a specific key value pair in the items object
 exports.readOne = (id, callback) => {
@@ -74,7 +67,7 @@ exports.readOne = (id, callback) => {
     if (err) {
       callback(err);
     } else {
-      var text = { "id": id, "text": message.toString() };
+      var text = { 'id': id, 'text': message.toString() };
       callback(null, text);
     }
   });
